@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Signal & Emergency Route System</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .junction { display: inline-block; margin: 20px; }
+        .light { width: 50px; height: 50px; border-radius: 50%; margin: 5px auto; }
+        .red { background: red; }
+        .green { background: green; }
+        .grey { background: grey; }
+        .road { display: flex; justify-content: center; margin-top: 20px; position: relative; }
+        .road div { width: 120px; height: 30px; margin: 5px; background: grey; text-align: center; position: relative; overflow: hidden; }
+        .yellow { background: yellow !important; }
+        .blue { background: blue !important; }
+        .green-road { background: green !important; }
+        .red-road { background: red !important; }
+        .car { position: absolute; left: -30px; top: 5px; font-size: 20px; }
+        .hint { margin-top: 20px; font-size: 16px; color: #555; }
+        .user { font-size: 30px; display: block; margin-top: 20px; }
+        .traffic { font-size: 12px; color: white; position: absolute; bottom: 5px; left: 5px; }
+        .recommended { border: 3px solid lime; }
+    </style>
+</head>
+<body>
+    <h2>Traffic Signal and Emergency Route System</h2>
+    <span class="user">🚗 You are driving a car!</span>
+    <p class="hint">Select the correct junction (MUX). The system will suggest the best route (DEMUX) based on traffic.</p>
+    
+    <h3>Traffic Lights (4:1 MUX)</h3>
+    <div class="junctions">
+        <div class="junction"><div class="light red" id="light0"></div>Junction 1</div>
+        <div class="junction"><div class="light red" id="light1"></div>Junction 2</div>
+        <div class="junction"><div class="light red" id="light2"></div>Junction 3</div>
+        <div class="junction"><div class="light red" id="light3"></div>Junction 4</div>
+    </div>
+    <br>
+    <label>Select Signal (MUX): </label>
+    <select id="muxControl" onchange="updateTraffic()">
+        <option value="0">00</option>
+        <option value="1">01</option>
+        <option value="2">10</option>
+        <option value="3">11</option>
+    </select>
+    
+    <h3>Emergency Route (1:4 DEMUX)</h3>
+    <p class="hint">System recommends the best route based on real-time traffic.</p>
+    <div class="road">
+        <div id="road0" class="road-box">Route 1 <span class="car">🛻</span> <span class="traffic" id="traffic0"></span></div>
+        <div id="road1" class="road-box">Route 2 <span class="car">🛻</span> <span class="traffic" id="traffic1"></span></div>
+        <div id="road2" class="road-box">Route 3 <span class="car">🛻</span> <span class="traffic" id="traffic2"></span></div>
+        <div id="road3" class="road-box">Route 4 <span class="car">🛻</span> <span class="traffic" id="traffic3"></span></div>
+    </div>
+    <br>
+    <label>Recommended Route (DEMUX): </label>
+    <select id="demuxControl" disabled>
+        <option value="0">00</option>
+        <option value="1">01</option>
+        <option value="2">10</option>
+        <option value="3">11</option>
+    </select>
+
+    <script>
+        function updateTraffic() {
+            let control = document.getElementById("muxControl").value;
+            for (let i = 0; i < 4; i++) {
+                document.getElementById("light" + i).className = "light red";
+            }
+            document.getElementById("light" + control).className = "light green";
+            updateTrafficConditions();
+        }
+
+        function updateTrafficConditions() {
+            let trafficData = [Math.random(), Math.random(), Math.random(), Math.random()];
+            let minTrafficIndex = trafficData.indexOf(Math.min(...trafficData));
+            let colors = ["yellow", "blue", "green", "red"];
+            
+            for (let i = 0; i < 4; i++) {
+                document.getElementById("road" + i).className = "road-box";
+                document.getElementById("road" + i).style.background = "grey";
+                document.querySelectorAll(".car")[i].style.left = "-30px";
+                document.getElementById("traffic" + i).innerText = "🚦 Traffic: " + Math.round(trafficData[i] * 100) + "%";
+            }
+            
+            document.getElementById("road" + minTrafficIndex).style.background = colors[minTrafficIndex];
+            document.getElementById("road" + minTrafficIndex).classList.add("recommended");
+            document.getElementById("demuxControl").value = minTrafficIndex;
+            moveCar(minTrafficIndex);
+        }
+
+        function moveCar(index) {
+            let car = document.querySelectorAll(".car")[index];
+            let pos = -30;
+            let interval = setInterval(() => {
+                if (pos >= 90) {
+                    clearInterval(interval);
+                } else {
+                    pos += 5;
+                    car.style.left = pos + "px";
+                }
+            }, 100);
+        }
+    </script>
+</body>
+</html>
